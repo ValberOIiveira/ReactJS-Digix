@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD de Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 50px;
+        }
+        h2 {
+            color: #333;
+        }
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            background: white;
+            padding: 10px;
+            margin: 5px auto;
+            width: 300px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+        }
+        .mensagem {
+            font-weight: bold;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2>Cadastro</h2>
+    <input type="text" id="cadastroEmail" placeholder="E-mail">
+    <input type="password" id="cadastroSenha" placeholder="Senha">
+    <button onclick="cadastrar()">Cadastrar</button>
+    
+    <h2>Login</h2>
+    <input type="text" id="loginEmail" placeholder="E-mail">
+    <input type="password" id="loginSenha" placeholder="Senha">
+    <button onclick="login()">Entrar</button>
+    
+    <p id="mensagem" class="mensagem"></p>
+    
+    <h2>Usuários Cadastrados</h2>
+    <ul id="listaUsuarios"></ul>
+    
+    <script>
+        function cadastrar() {
+            let email = document.getElementById("cadastroEmail").value;
+            let senha = document.getElementById("cadastroSenha").value;
+            
+            if (!email || !senha) {
+                alert("Preencha todos os campos!");
+                return;
+            }
+            
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+            
+            if (usuarios.some(user => user.email === email)) {
+                alert("E-mail já cadastrado!");
+                return;
+            }
+            
+            usuarios.push({ email, senha });
+            localStorage.setItem("usuarios", JSON.stringify(usuarios));
+            alert("Usuário cadastrado com sucesso!");
+            listarUsuarios();
+        }
+        
+        function login() {
+            let email = document.getElementById("loginEmail").value;
+            let senha = document.getElementById("loginSenha").value;
+            
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+            
+            let usuarioValido = usuarios.find(user => user.email === email && user.senha === senha);
+            
+            if (usuarioValido) {
+                document.getElementById("mensagem").textContent = "Login bem-sucedido!";
+                document.getElementById("mensagem").style.color = "green";
+            } else {
+                document.getElementById("mensagem").textContent = "E-mail ou senha incorretos!";
+                document.getElementById("mensagem").style.color = "red";
+            }
+        }
+        
+        function listarUsuarios() {
+            let usuarios = JSON.parse(localStorage.getItem("usuarios")) || [];
+            let lista = document.getElementById("listaUsuarios");
+            lista.innerHTML = "";
+            
+            usuarios.forEach((user, index) => {
+                let li = document.createElement("li");
+                li.innerHTML = `${user.email} 
+                <button onclick="editarUsuario(${index})">Editar</button>
+                <button onclick="excluirUsuario(${index})">Excluir</button>`;
+                lista.appendChild(li);
+            });
+        }
+        
+        function excluirUsuario(index) {
+            let usuarios = JSON.parse(localStorage.getItem("usuarios"));
+            usuarios.splice(index, 1);
+            localStorage.setItem("usuarios", JSON.stringify(usuarios));
+            listarUsuarios();
+        }
+        
+        function editarUsuario(index) {
+            let usuarios = JSON.parse(localStorage.getItem("usuarios"));
+            let novoEmail = prompt("Novo e-mail", usuarios[index].email);
+            let novaSenha = prompt("Nova senha", usuarios[index].senha);
+            
+            if (novoEmail && novaSenha) {
+                usuarios[index] = { email: novoEmail, senha: novaSenha };
+                localStorage.setItem("usuarios", JSON.stringify(usuarios));
+                listarUsuarios();
+            }
+        }
+        
+        listarUsuarios();
+    </script>
+</body>
+</html>
